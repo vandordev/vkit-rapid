@@ -1,10 +1,10 @@
 import { cors } from "@elysiajs/cors";
 import { Elysia } from "elysia";
 
-import { env } from "@api/lib/env";
-import { AppError } from "@api/lib/errors";
-import { logger } from "@api/lib/logger";
-import { healthRoutes } from "@api/routes";
+import { env } from "./lib/env";
+import { AppError } from "./lib/errors";
+import { logger } from "./lib/logger";
+import { healthRoutes, statusRoutes } from "./routes";
 
 const blockedPathPatterns: readonly RegExp[] = [
   /^\/\.env/,
@@ -116,4 +116,5 @@ export const app = new Elysia()
       ...(requestId ? { requestId } : {}),
     };
   })
-  .use(healthRoutes);
+  .use(healthRoutes)
+  .use(statusRoutes);

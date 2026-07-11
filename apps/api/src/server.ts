@@ -1,13 +1,13 @@
-import { env } from "@api/lib/env";
+import { env } from "./lib/env";
 import { app } from "./app";
 
-app.listen(env.PORT);
+app.listen(env.port);
 
 console.log(`
-Oriskin external API boundary
-Local:        http://localhost:${env.PORT}
+Reusable Elysia API boundary
+Local:        http://localhost:${env.port}
 Environment:  ${env.NODE_ENV}
-Health:       http://localhost:${env.PORT}/health
+Health:       http://localhost:${env.port}/health
 `);
 
 export type Server = typeof app;
