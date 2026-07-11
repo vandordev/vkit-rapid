@@ -56,17 +56,17 @@ The queue boundary uses `pg-boss` on PostgreSQL, so durable jobs, retries, delay
 
 ## What's Included?
 
-| Workspace              | Responsibility                                                                  |
-| ---------------------- | ------------------------------------------------------------------------------- |
-| `apps/web`             | Next.js App Router, `(public)` and `(dashboard)` route groups, Eden consumers   |
-| `apps/api`             | Elysia HTTP boundary, `/api` routes, health checks, validation, errors, logging |
-| `apps/scheduler`       | Time-based job scheduling and enqueueing                                        |
-| `apps/worker`          | Job consumption, retries, idempotency, and usecase execution                    |
-| `packages/database`    | Prisma schema, migrations, generated client, singleton client                   |
-| `packages/application` | Mutation usecases and domain rules                                              |
-| `packages/config`      | Typed server configuration with `@t3-oss/env-core`                              |
-| `packages/queue`       | PostgreSQL queue lifecycle and named job boundary                               |
-| `.agent`               | Architecture and contribution rules for future work                             |
+| Workspace              | Responsibility                                                                                            |
+| ---------------------- | --------------------------------------------------------------------------------------------------------- |
+| `apps/web`             | Next.js App Router, `(public)` and `(dashboard)` route groups, Eden consumers                             |
+| `apps/api`             | Elysia app factory, standalone HTTP entrypoint, `/api` routes, health checks, validation, errors, logging |
+| `apps/scheduler`       | Time-based job scheduling and enqueueing                                                                  |
+| `apps/worker`          | Job consumption, retries, idempotency, and usecase execution                                              |
+| `packages/database`    | Prisma schema, migrations, generated client, singleton client                                             |
+| `packages/application` | Mutation usecases and domain rules                                                                        |
+| `packages/config`      | Typed server configuration with `@t3-oss/env-core`                                                        |
+| `packages/queue`       | PostgreSQL queue lifecycle and named job boundary                                                         |
+| `.agent`               | Architecture and contribution rules for future work                                                       |
 
 ## Quick Start
 
@@ -99,11 +99,11 @@ The local services use these endpoints:
 - API health: http://localhost:4101/health
 - API status: http://localhost:4101/api/status
 
-The web runtime receives API URLs only. `DATABASE_URL` belongs to the server runtimes and is never exposed to the browser.
+The web runtime owns the public origin used by Eden. `DATABASE_URL` belongs to the server runtimes and is never exposed to the browser.
 
 ### Containerized development
 
-After creating the environment files, run the complete stack with:
+After creating the environment files, run the web, embedded Elysia, worker, and scheduler stack with:
 
 ```bash
 task compose:up
@@ -161,7 +161,7 @@ This keeps business rules reusable across HTTP requests, scheduled jobs, and wor
 
 ```text
 apps/
-  api/          Elysia API and exported Eden contract
+  api/          Elysia app factory and standalone HTTP entrypoint
   web/          Next.js application
   scheduler/    enqueue-only scheduler process
   worker/       asynchronous job process
@@ -176,8 +176,8 @@ Taskfile.yml    project command surface
 
 ## Design Principles
 
-- **One HTTP boundary:** Elysia owns application API routes under `/api`.
-- **One frontend transport:** Next.js uses Eden; there is no tRPC or Next.js API proxy.
+- **One HTTP boundary:** Elysia owns application API routes under `/api`, embedded into Next.js through a catch-all Route Handler.
+- **One frontend transport:** Next.js uses Eden and a thin Elysia Route Handler adapter; there is no tRPC or duplicate API proxy.
 - **Explicit mutation boundary:** state changes go through application usecases.
 - **Independent runtimes:** web, API, scheduler, and worker can be deployed and scaled separately.
 - **Scoped configuration:** each runtime validates only the environment variables it needs.

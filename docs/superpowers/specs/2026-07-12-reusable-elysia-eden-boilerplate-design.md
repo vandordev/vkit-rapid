@@ -29,7 +29,7 @@ All business endpoints live in Elysia beneath `/api`. `/health` and `/health/rea
 
 `apps/api/src/index.ts` exports both `app` and `type App = typeof app`. The server runtime is separate, so importing `App` into the web app does not listen on a port.
 
-`apps/web/lib/api` creates typed Eden clients from `App`. Both Server Components and Client Components call Elysia directly, using an API base URL supplied by environment configuration. Next.js does not proxy API traffic through Route Handlers. TanStack Query may wrap the Eden client for client-side caching, invalidation, and mutation state.
+`apps/web/app/api/[[...slugs]]/route.ts` embeds the Elysia app by exporting `app.fetch` for supported HTTP methods. `apps/web/lib/api` creates typed Eden clients from `App`: Server Components use `treaty(app).api` directly, while Client Components use the same-origin Next.js `/api/*` Route Handler. Next.js does not duplicate or rewrite API routes. TanStack Query may wrap the Eden client for client-side caching, invalidation, and mutation state.
 
 ### Data flows
 
@@ -97,7 +97,7 @@ Configuration is typed and scoped to its runtime. No application code reads `pro
 
 The common schema includes `NODE_ENV` and `DATABASE_URL`. API, worker, and scheduler receive individual environment files, so a process only receives values relevant to its runtime.
 
-Next.js owns `apps/web/lib/env.ts` and uses `@t3-oss/env-nextjs`. It validates server-only values and `NEXT_PUBLIC_*` client values according to Next.js build rules. The web app receives API URL configuration only, including `NEXT_PUBLIC_API_URL` for browser-side Eden calls and an optional server-side internal API URL for Server Components; it never receives `DATABASE_URL`.
+Next.js owns `apps/web/lib/env.ts` and uses `@t3-oss/env-nextjs`. It validates the public app origin used by browser Eden calls; Server Components use the embedded app directly. The web app never receives `DATABASE_URL`.
 
 Tracked templates are `.env.api.example`, `.env.web.example`, `.env.worker.example`, and `.env.scheduler.example`. Their real counterparts remain ignored by Git.
 
