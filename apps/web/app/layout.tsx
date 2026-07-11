@@ -3,7 +3,7 @@ import { ColorSchemeScript, MantineProvider, createTheme } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import { Space_Grotesk } from "next/font/google";
 
-import { TRPCProvider } from "@/components/trpc-provider";
+import { QueryProvider } from "@/components/query-provider";
 
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
@@ -17,8 +17,8 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Oriskin Task Management",
-  description: "Oriskin internal task-management workspace",
+  title: "Application Workspace",
+  description: "A reusable Next.js application workspace",
 };
 
 const theme = createTheme({
@@ -56,10 +56,10 @@ export default function RootLayout({
       </head>
       <body>
         <MantineProvider defaultColorScheme="light" theme={theme}>
-          <TRPCProvider>
+          <QueryProvider>
             <Notifications position="top-right" />
             {children}
-          </TRPCProvider>
+          </QueryProvider>
         </MantineProvider>
       </body>
     </html>
