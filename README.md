@@ -1,17 +1,22 @@
-# Oriskin Task Management
+# Reusable Application Boilerplate
 
-Internal work-management system for Oriskin IT. It manages FS/TO delivery, approval, weekly planning, dependencies, Solution activity, daily huddles, and owner-ready Excel reports.
+Domain-neutral Bun/Turborepo boilerplate for projects built with Next.js, Elysia, Eden, Prisma, PostgreSQL, and optional scheduled workers.
 
 ## Architecture
 
-- Next.js/Mantine web console: internal UI and tRPC API under `/nextapi/*`.
-- Usecase commands: shared state-changing business rules.
-- Prisma/PostgreSQL: task-management persistence and direct transport-specific read queries.
-- Elysia/Bun: external boundary; currently only `/health` is active. The `/api/*` namespace is reserved for future external integrations.
+```text
+PostgreSQL -> Prisma -> Elysia /api -> Eden -> Next.js
+PostgreSQL -> Prisma -> usecase -> Elysia /api -> Eden -> Next.js
+Scheduler -> PostgreSQL queue -> Worker -> usecase -> Prisma
+```
 
-The application does not connect to the production ticketing database. GitHub evidence is planned for phase two.
+- `apps/api` is the Elysia HTTP boundary. Health is at `/health`; application routes are under `/api`.
+- `apps/web` uses `(public)` and `(dashboard)` route groups and consumes the API through Eden.
+- `apps/scheduler` enqueues named jobs; `apps/worker` processes them.
+- `packages/database` owns Prisma; `packages/application` owns mutation usecases; `packages/config` owns typed server env loaders.
+- There is no auth, SSO, tRPC, task-management, or product schema in the baseline.
 
-## Local Development
+## Development
 
 ```bash
 bun install --ignore-scripts
@@ -21,39 +26,16 @@ bun run dev
 ```
 
 Web: http://localhost:4100  
-Elysia health: http://localhost:4101/health
+API: http://localhost:4101  
+Health: http://localhost:4101/health
 
-The web runtime reads `.env.web`, including server-side `DATABASE_URL` for tRPC procedures. The Elysia runtime reads `.env.api`. Real environment files are ignored by Git.
-
-## Environment Files
-
-```text
-.env.api.example  # tracked, Elysia/external boundary template
-.env.web.example  # tracked, Next.js/tRPC server and browser-safe template
-.env.api          # local/production secret file, ignored
-.env.web          # local/production secret file, ignored
-```
-
-Do not commit passwords, tokens, database URLs, or production credentials. Use a dedicated read-only account for any future external integration.
+Use `.env.worker` and `.env.scheduler` when those runtimes are enabled. The web app never receives `DATABASE_URL`.
 
 ## Commands
 
-- `bun run dev`
-- `bun run dev:web`
-- `bun run dev:api`
-- `bun run build`
-- `bun run lint`
-- `bun run check-types`
-- `bun test`
+- `bun run dev`, `bun run dev:api`, `bun run dev:web`
+- `bun run check-types`, `bun run lint`, `bun test`, `bun run build`
+- `bun run db:generate`, `bun run db:migrate:dev`
+- `bun run start:worker`, `bun run start:scheduler` when worker runtimes are present
 
-## Repository Layout
-
-- `apps/web` - Next.js console, tRPC procedures, and internal `/nextapi` handlers
-- `apps/api` - Elysia external boundary and `/health`
-- `packages/database` - Prisma schema, generated client, and database configuration
-- `packages/application` - shared command usecases as task-management features are added
-- `docs` - design specs, implementation plans, roadmap, and historical workbook references
-
-## Reports
-
-Weekly and monthly owner reports are generated from application data. The workbook reference in `docs/TASK LIST DEPT IT.xlsx` is historical input for mapping and validation; it is not loaded at runtime.
+See `.agent/` for the architecture and feature rules that future projects should follow.
