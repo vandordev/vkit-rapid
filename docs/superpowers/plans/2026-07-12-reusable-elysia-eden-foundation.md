@@ -75,7 +75,7 @@ Expected: PASS.
 - [ ] **Step 5: Commit**
 
 ```bash
-rtk git add package.json bun.lockb turbo.json packages/config
+rtk git add package.json bun.lock turbo.json packages/config
 rtk git commit -m "feat(config): add typed runtime configuration"
 ```
 
@@ -120,7 +120,7 @@ Expected: PASS with no references to Contact, Message, or command roles.
 - [ ] **Step 5: Commit**
 
 ```bash
-rtk git add packages/database packages/application bun.lockb
+rtk git add packages/database packages/application bun.lock
 rtk git commit -m "refactor: reset domain persistence and usecases"
 ```
 
@@ -174,7 +174,7 @@ Expected: PASS; `App` is type-only importable and the process is not started by 
 - [ ] **Step 5: Commit**
 
 ```bash
-rtk git add apps/api packages/config package.json bun.lockb
+rtk git add apps/api packages/config package.json bun.lock
 rtk git commit -m "feat(api): expose typed Elysia API boundary"
 ```
 
@@ -222,7 +222,7 @@ Expected: no matches.
 - [ ] **Step 5: Commit**
 
 ```bash
-rtk git add apps/web package.json bun.lockb
+rtk git add apps/web package.json bun.lock
 rtk git commit -m "refactor(web): replace trpc and auth with Eden"
 ```
 

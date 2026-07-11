@@ -75,7 +75,7 @@ The queue boundary uses `pg-boss` on PostgreSQL, so durable jobs, retries, delay
 
 ### Prerequisites
 
-- Bun 1.1 or newer
+- Bun 1.1.45 (the version pinned by `package.json`)
 - Task (`go-task`)
 - PostgreSQL for database-backed features (or `task compose:up` for local PostgreSQL)
 - Docker and Docker Compose for the containerized stack

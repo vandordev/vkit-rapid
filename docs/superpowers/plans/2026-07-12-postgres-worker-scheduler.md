@@ -54,7 +54,7 @@ Expected: PASS.
 - [ ] **Step 5: Commit**
 
 ```bash
-rtk git add packages/queue package.json bun.lockb
+rtk git add packages/queue package.json bun.lock
 rtk git commit -m "feat(queue): add PostgreSQL job queue boundary"
 ```
 
@@ -94,7 +94,7 @@ Expected: PASS.
 - [ ] **Step 5: Commit**
 
 ```bash
-rtk git add apps/worker packages/config package.json bun.lockb
+rtk git add apps/worker packages/config package.json bun.lock
 rtk git commit -m "feat(worker): add queue consumer runtime"
 ```
 
@@ -134,7 +134,7 @@ Expected: test and typecheck pass; `rg` prints no imports.
 - [ ] **Step 5: Commit**
 
 ```bash
-rtk git add apps/scheduler packages/config package.json bun.lockb
+rtk git add apps/scheduler packages/config package.json bun.lock
 rtk git commit -m "feat(scheduler): add enqueue-only runtime"
 ```
 

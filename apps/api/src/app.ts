@@ -13,6 +13,7 @@ const blockedPathPatterns: readonly RegExp[] = [
   /^\/node_modules/,
   /^\/package\.json/,
   /^\/bun\.lockb/,
+  /^\/bun\.lock/,
   /^\/pnpm-lock\.yaml/,
   /^\/yarn\.lock/,
   /\/\.env$/,
