@@ -18,6 +18,7 @@ The default application is `apps/web` + `apps/api`:
 - `packages/database`: Prisma schema, migrations, generated client, and singleton client.
 - `packages/application`: mutation usecases and domain rules.
 - `packages/config`: typed server runtime configuration.
+- UI choice is project-scoped: Mantine is the current default; shadcn/ui is an alternative, not a second baseline.
 
 `apps/worker`, `apps/scheduler`, and `packages/queue` are optional. Keep them when a project needs durable asynchronous jobs; remove or omit them, their env files, Compose services, Dockerfiles, and dependencies when it does not. Do not introduce these runtimes for synchronous features.
 
@@ -52,6 +53,11 @@ The default application is `apps/web` + `apps/api`:
 - Next.js uses `@t3-oss/env-nextjs` in `apps/web/lib/env.ts`.
 - Do not read `process.env` in feature code. Add new keys to the smallest runtime schema that needs them.
 - Keep `.env.api`, `.env.web`, and optional `.env.worker`/`.env.scheduler` boundaries intact. Never expose `DATABASE_URL` to the browser.
+
+### UI
+
+- Read `.agent/ui.md` before changing the web design system.
+- Use one primary UI system per project. Do not mix Mantine and shadcn primitives as a default.
 
 ### Optional Jobs
 

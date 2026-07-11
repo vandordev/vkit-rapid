@@ -11,8 +11,11 @@ vkit-rapid gives every new project the same foundation:
 - Usecases for mutation business rules
 - PostgreSQL-backed jobs with separate scheduler and worker processes
 - Taskfile as the single developer command surface
+- A flexible web UI baseline: Mantine by default, shadcn/ui as an alternative
 
 The repository is intentionally domain-neutral. Start with the architecture and conventions, then add the product domain you need.
+
+The web app currently uses Mantine for its theme and dashboard primitives. Projects that need source-owned Tailwind components can switch to shadcn/ui, but should choose one primary UI system rather than carrying both as competing defaults.
 
 ## Why vkit-rapid?
 
