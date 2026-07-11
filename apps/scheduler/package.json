@@ -1,0 +1,23 @@
+{
+  "name": "@repo/scheduler",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun --env-file=../../.env.scheduler run --watch src/main.ts",
+    "build": "bun build src/main.ts --outdir=dist --target=bun",
+    "start": "bun --env-file=../../.env.scheduler run dist/main.js",
+    "lint": "eslint",
+    "check-types": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@repo/config": "*",
+    "@repo/queue": "*"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "*",
+    "@repo/typescript-config": "*",
+    "typescript": "5.9.2"
+  }
+}
