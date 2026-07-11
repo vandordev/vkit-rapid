@@ -46,3 +46,27 @@ services:
     depends_on:
       api:
         condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    env_file:
+      - .env.worker
+    environment:
+      NODE_ENV: production
+    depends_on:
+      api:
+        condition: service_healthy
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.scheduler
+    env_file:
+      - .env.scheduler
+    environment:
+      NODE_ENV: production
+    depends_on:
+      api:
+        condition: service_healthy

@@ -22,6 +22,8 @@ Scheduler -> PostgreSQL queue -> Worker -> usecase -> Prisma
 bun install --ignore-scripts
 cp .env.api.example .env.api
 cp .env.web.example .env.web
+cp .env.worker.example .env.worker
+cp .env.scheduler.example .env.scheduler
 bun run dev
 ```
 

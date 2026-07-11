@@ -26,6 +26,16 @@ tasks:
     cmds:
       - rtk bun run dev:web
 
+  dev:worker:
+    desc: Run only the worker app in development mode
+    cmds:
+      - rtk bun run dev:worker
+
+  dev:scheduler:
+    desc: Run only the scheduler app in development mode
+    cmds:
+      - rtk bun run dev:scheduler
+
   start:
     desc: Start built API and web apps
     cmds:
@@ -40,6 +50,16 @@ tasks:
     desc: Start only the built web app
     cmds:
       - rtk bun run start:web
+
+  start:worker:
+    desc: Start only the built worker app
+    cmds:
+      - rtk bun run start:worker
+
+  start:scheduler:
+    desc: Start only the built scheduler app
+    cmds:
+      - rtk bun run start:scheduler
 
   build:
     desc: Type-check and build the monorepo

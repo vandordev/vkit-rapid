@@ -13,13 +13,8 @@ test("creates API config from scoped values", () => {
   ).toMatchObject({ port: 4101, corsOrigin: "http://localhost:4100" });
 });
 
-test("rejects an API config with an empty DATABASE_URL", () => {
-  expect(() =>
-    createApiConfig({
-      NODE_ENV: "test",
-      DATABASE_URL: "",
-      PORT: "4101",
-      CORS_ORIGIN: "http://localhost:4100",
-    }),
-  ).toThrow();
+test("uses the local PostgreSQL default when DATABASE_URL is omitted", () => {
+  expect(
+    createApiConfig({ NODE_ENV: "test", PORT: "4101", CORS_ORIGIN: "http://localhost:4100" }).DATABASE_URL,
+  ).toBe("postgresql://localhost:5432/postgres");
 });
