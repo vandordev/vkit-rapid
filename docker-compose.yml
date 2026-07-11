@@ -1,4 +1,18 @@
 services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: boilerplate
+      POSTGRES_USER: boilerplate
+      POSTGRES_PASSWORD: boilerplate
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U boilerplate -d boilerplate"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   web:
     build:
       context: .
@@ -10,19 +24,24 @@ services:
       PORT: 4100
       HOSTNAME: 0.0.0.0
       NEXT_PUBLIC_APP_URL: http://localhost:4100
+      DATABASE_URL: postgresql://boilerplate:boilerplate@db:5432/boilerplate
     ports:
       - "4100:4100"
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "node -e \"fetch('http://127.0.0.1:4100').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\"",
+          'node -e "fetch(''http://127.0.0.1:4100'').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"',
         ]
       interval: 10s
       timeout: 5s
       retries: 5
+    depends_on:
+      db:
+        condition: service_healthy
 
   worker:
+    profiles: ["jobs"]
     build:
       context: .
       dockerfile: Dockerfile.worker
@@ -30,8 +49,13 @@ services:
       - .env.worker
     environment:
       NODE_ENV: production
+      DATABASE_URL: postgresql://boilerplate:boilerplate@db:5432/boilerplate
+    depends_on:
+      db:
+        condition: service_healthy
 
   scheduler:
+    profiles: ["jobs"]
     build:
       context: .
       dockerfile: Dockerfile.scheduler
@@ -39,3 +63,10 @@ services:
       - .env.scheduler
     environment:
       NODE_ENV: production
+      DATABASE_URL: postgresql://boilerplate:boilerplate@db:5432/boilerplate
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres-data:

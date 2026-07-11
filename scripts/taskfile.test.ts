@@ -8,6 +8,9 @@ test("Taskfile exposes every runtime operation", () => {
     "build:web",
     "build:worker",
     "build:scheduler",
+    "dev:standalone-api",
+    "dev:jobs",
+    "start:jobs",
     "test:api",
     "test:web",
     "test:worker",
@@ -25,7 +28,9 @@ test("Taskfile exposes every runtime operation", () => {
     "check-types:scheduler",
     "db:generate",
     "compose:up",
+    "compose:jobs",
     "compose:down",
+    "web:health",
   ]) {
     expect(taskfile).toContain(`  ${task}:`);
   }

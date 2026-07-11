@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM oven/bun:1.1-alpine AS base
+FROM oven/bun:1.1.45-alpine AS base
 WORKDIR /app
 
 FROM base AS deps
@@ -15,7 +15,7 @@ COPY packages/config/package.json ./packages/config/
 COPY packages/queue/package.json ./packages/queue/
 COPY packages/eslint-config/package.json ./packages/eslint-config/
 COPY packages/typescript-config/package.json ./packages/typescript-config/
-RUN bun install --frozen-lockfile
+RUN bun install --frozen-lockfile --ignore-scripts
 
 FROM base AS builder
 RUN apk add --no-cache nodejs
@@ -27,11 +27,15 @@ COPY packages/ ./packages/
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ARG NEXT_PUBLIC_APP_URL=http://localhost:4100
+ARG DATABASE_URL=postgresql://boilerplate:boilerplate@localhost:5432/boilerplate
+ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+ENV DATABASE_URL=$DATABASE_URL
 
 RUN cd packages/database && bun run db:generate
 RUN cd apps/web && NEXT_PRIVATE_SKIP_PATCHING=1 node ../../node_modules/next/dist/bin/next build
 
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

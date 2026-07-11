@@ -1,7 +1,7 @@
 import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
 
-import { commonServer } from "./common";
+import { assertProductionDatabaseConfig, commonServer } from "./common";
 
 const apiServer = {
   ...commonServer,
@@ -9,13 +9,17 @@ const apiServer = {
   CORS_ORIGIN: z.string().url().default("http://localhost:4100"),
 } as const;
 
-export function createApiConfig(runtimeEnv: Record<string, string | undefined>) {
+export function createApiConfig(
+  runtimeEnv: Record<string, string | undefined>,
+) {
   const parsed = createEnv({
     server: apiServer,
     runtimeEnv,
     isServer: true,
     emptyStringAsUndefined: true,
   });
+
+  assertProductionDatabaseConfig(parsed.NODE_ENV, runtimeEnv);
 
   return {
     ...parsed,

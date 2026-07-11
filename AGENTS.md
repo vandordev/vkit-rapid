@@ -53,6 +53,7 @@ The default application is `apps/web` + `apps/api`:
 - Next.js uses `@t3-oss/env-nextjs` in `apps/web/lib/env.ts`.
 - Do not read `process.env` in feature code. Add new keys to the smallest runtime schema that needs them.
 - Keep `.env.api`, `.env.web`, and optional `.env.worker`/`.env.scheduler` boundaries intact. Never expose `DATABASE_URL` to the browser.
+- Because Elysia is embedded in Next.js, `.env.web` may contain server-only `DATABASE_URL`; validate it under the T3 Env `server` schema, never under `client`.
 
 ### UI
 

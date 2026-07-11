@@ -25,7 +25,7 @@ The template is designed for teams that want:
 
 - one typed API contract shared by backend and frontend;
 - a clear separation between reads, mutations, and asynchronous work;
-- independently deployable web, API, scheduler, and worker runtimes;
+- a simple web + embedded API baseline, with independently deployable jobs available when needed;
 - configuration that exposes only the environment variables each runtime needs;
 - a small, understandable foundation without a sample business domain to remove later.
 
@@ -63,8 +63,8 @@ The queue boundary uses `pg-boss` on PostgreSQL, so durable jobs, retries, delay
 | ---------------------- | --------------------------------------------------------------------------------------------------------- |
 | `apps/web`             | Next.js App Router, `(public)` and `(dashboard)` route groups, Eden consumers                             |
 | `apps/api`             | Elysia app factory, standalone HTTP entrypoint, `/api` routes, health checks, validation, errors, logging |
-| `apps/scheduler`       | Time-based job scheduling and enqueueing                                                                  |
-| `apps/worker`          | Job consumption, retries, idempotency, and usecase execution                                              |
+| `apps/scheduler`       | Optional time-based job scheduling and enqueueing                                                         |
+| `apps/worker`          | Optional job consumption, retries, idempotency, and usecase execution                                     |
 | `packages/database`    | Prisma schema, migrations, generated client, singleton client                                             |
 | `packages/application` | Mutation usecases and domain rules                                                                        |
 | `packages/config`      | Typed server configuration with `@t3-oss/env-core`                                                        |
@@ -77,7 +77,7 @@ The queue boundary uses `pg-boss` on PostgreSQL, so durable jobs, retries, delay
 
 - Bun 1.1 or newer
 - Task (`go-task`)
-- PostgreSQL for database-backed features
+- PostgreSQL for database-backed features (or `task compose:up` for local PostgreSQL)
 - Docker and Docker Compose for the containerized stack
 
 ### Local development
@@ -87,26 +87,24 @@ git clone <repository-url>
 cd vkit-rapid
 
 task install
-cp .env.api.example .env.api
 cp .env.web.example .env.web
-cp .env.worker.example .env.worker
-cp .env.scheduler.example .env.scheduler
 
 task dev
 ```
 
+Copy `.env.api.example` only when running the standalone API. Copy `.env.worker.example` and `.env.scheduler.example` only when enabling jobs.
+
 The local services use these endpoints:
 
 - Web: http://localhost:4100
-- API: http://localhost:4101
-- API health: http://localhost:4101/health
-- API status: http://localhost:4101/api/status
+- Embedded API health: http://localhost:4100/health
+- Embedded API status: http://localhost:4100/api/status
 
-The web runtime owns the public origin used by Eden. `DATABASE_URL` belongs to the server runtimes and is never exposed to the browser.
+The web runtime owns the public origin used by Eden. `DATABASE_URL` is server-only and is required by embedded Elysia when API routes access Prisma. It is never exposed to the browser.
 
 ### Containerized development
 
-After creating the environment files, run the web, embedded Elysia, worker, and scheduler stack with:
+After creating the environment files, run the core web and embedded Elysia stack with:
 
 ```bash
 task compose:up
@@ -114,14 +112,19 @@ task compose:up
 
 Use `task compose:up:detached`, `task compose:logs`, `task compose:ps`, and `task compose:down` to manage the stack.
 
+Jobs are optional. Run `task compose:jobs` when the project uses scheduler and worker processes.
+
 ## Command Reference
 
 Taskfile is the supported interface for project operations. Run `task --list` for the complete list.
 
 ```text
-task dev                  Run web, API, worker, and scheduler
-task start                Start all built runtimes
-task build                Type-check and build every runtime
+task dev                  Run web with embedded Elysia
+task dev:standalone-api   Run the optional standalone API process
+task dev:jobs             Run optional worker and scheduler
+task start                Start web with embedded Elysia
+task start:jobs           Start optional worker and scheduler
+task build                Type-check and build every installed workspace
 task quality              Run tests, lint, and typechecks
 task test                 Run every test
 task lint                 Lint every workspace
@@ -130,8 +133,9 @@ task format              Format source and documentation
 task db:generate         Generate the Prisma client
 task db:migrate:dev      Create and apply a development migration
 task db:studio           Open Prisma Studio
-task api:health          Check the API health endpoint
-task api:status          Check the API status endpoint
+task web:health          Check embedded Elysia health
+task api:health          Check standalone API health
+task api:status          Check standalone API status
 ```
 
 Runtime-specific commands follow the same naming pattern:
@@ -166,8 +170,8 @@ This keeps business rules reusable across HTTP requests, scheduled jobs, and wor
 apps/
   api/          Elysia app factory and standalone HTTP entrypoint
   web/          Next.js application
-  scheduler/    enqueue-only scheduler process
-  worker/       asynchronous job process
+  scheduler/    optional enqueue-only scheduler process
+  worker/       optional asynchronous job process
 packages/
   application/  mutation usecases
   config/       typed runtime configuration

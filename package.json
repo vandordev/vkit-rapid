@@ -1,41 +1,45 @@
 {
-	"name": "turbostack",
-	"version": "0.1.0",
-	"private": true,
-	"packageManager": "bun@1.1.45",
-	"scripts": {
-		"build": "bun run check-types && turbo run build",
-		"start": "concurrently --names \"api,web,worker,scheduler\" -c \"blue,green,yellow,magenta\" \"bun run start:api\" \"bun run start:web\" \"bun run start:worker\" \"bun run start:scheduler\"",
-		"start:api": "cd apps/api && bun run start",
-		"start:web": "cd apps/web && bun run start",
-		"start:worker": "cd apps/worker && bun run start",
-		"start:scheduler": "cd apps/scheduler && bun run start",
-		"dev": "turbo run dev --filter=web --filter=api --filter=worker --filter=scheduler",
-		"dev:web": "turbo run dev --filter=web",
-		"dev:api": "turbo run dev --filter=api",
-		"dev:worker": "turbo run dev --filter=worker",
-		"dev:scheduler": "turbo run dev --filter=scheduler",
-		"lint": "turbo run lint",
-		"format": "prettier --write \"**/*.{ts,tsx,md}\"",
-		"check-types": "turbo run check-types",
-		"docker:build:web": "turbo run build --filter=web",
-		"docker:build:api": "turbo run build --filter=api",
-		"clean": "turbo run clean",
-		"prepare": "husky"
-	},
-	"devDependencies": {
-		"concurrently": "^9.2.1",
-		"husky": "^9.1.7",
-		"prettier": "^3.7.4",
-		"turbo": "^2.8.1",
-		"typescript": "5.9.2"
-	},
-	"engines": {
-		"node": ">=22"
-	},
-	"workspaces": [
-		"apps/*",
-		"packages/*"
-	],
-	"dependencies": {}
+  "name": "turbostack",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "bun@1.1.45",
+  "scripts": {
+    "build": "bun run check-types && turbo run build",
+    "start": "bun run start:web",
+    "start:core": "bun run start:web",
+    "start:jobs": "concurrently --names \"worker,scheduler\" -c \"yellow,magenta\" \"bun run start:worker\" \"bun run start:scheduler\"",
+    "start:api": "cd apps/api && bun run start",
+    "start:web": "cd apps/web && bun run start",
+    "start:worker": "cd apps/worker && bun run start",
+    "start:scheduler": "cd apps/scheduler && bun run start",
+    "dev": "turbo run dev --filter=web",
+    "dev:standalone-api": "turbo run dev --filter=@repo/api",
+    "dev:jobs": "turbo run dev --filter=@repo/worker --filter=@repo/scheduler",
+    "dev:web": "turbo run dev --filter=web",
+    "dev:api": "turbo run dev --filter=@repo/api",
+    "dev:worker": "turbo run dev --filter=worker",
+    "dev:scheduler": "turbo run dev --filter=scheduler",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "check-types": "turbo run check-types",
+    "docker:build:web": "turbo run build --filter=web",
+    "docker:build:api": "turbo run build --filter=@repo/api",
+    "clean": "turbo run clean",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "husky": "^9.1.7",
+    "prettier": "^3.7.4",
+    "turbo": "^2.8.1",
+    "typescript": "5.9.2"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "dependencies": {}
 }

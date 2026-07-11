@@ -12,9 +12,19 @@ tasks:
       - rtk bun install --ignore-scripts
 
   dev:
-    desc: Run API, web, worker, and scheduler
+    desc: Run the web app with embedded Elysia
     cmds:
       - rtk bun run dev
+
+  dev:standalone-api:
+    desc: Run the standalone API process
+    cmds:
+      - rtk bun run dev:standalone-api
+
+  dev:jobs:
+    desc: Run the optional worker and scheduler
+    cmds:
+      - rtk bun run dev:jobs
 
   dev:api:
     desc: Run the API in development mode
@@ -37,9 +47,14 @@ tasks:
       - rtk bun run dev:scheduler
 
   start:
-    desc: Start API, web, worker, and scheduler
+    desc: Start the web app with embedded Elysia
     cmds:
       - rtk bun run start
+
+  start:jobs:
+    desc: Start the optional worker and scheduler
+    cmds:
+      - rtk bun run start:jobs
 
   start:api:
     desc: Start the built API
@@ -218,9 +233,14 @@ tasks:
       - rtk bunx prisma studio
 
   api:health:
-    desc: Check the API health endpoint
+    desc: Check the standalone API health endpoint
     cmds:
       - rtk curl --fail http://localhost:4101/health
+
+  web:health:
+    desc: Check the embedded Elysia health endpoint
+    cmds:
+      - rtk curl --fail http://localhost:4100/health
 
   api:status:
     desc: Check the API status endpoint
@@ -228,9 +248,14 @@ tasks:
       - rtk curl --fail http://localhost:4101/api/status
 
   compose:up:
-    desc: Build and run the complete Docker Compose stack
+    desc: Build and run the core web plus embedded Elysia stack
     cmds:
       - rtk docker compose up --build
+
+  compose:jobs:
+    desc: Build and run the optional worker and scheduler profile
+    cmds:
+      - rtk docker compose --profile jobs up --build
 
   compose:up:detached:
     desc: Build and run the stack in the background
