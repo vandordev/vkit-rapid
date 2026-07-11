@@ -19,12 +19,12 @@ Scheduler -> PostgreSQL queue -> Worker -> usecase -> Prisma
 ## Development
 
 ```bash
-bun install --ignore-scripts
+task install
 cp .env.api.example .env.api
 cp .env.web.example .env.web
 cp .env.worker.example .env.worker
 cp .env.scheduler.example .env.scheduler
-bun run dev
+task dev
 ```
 
 Web: http://localhost:4100  
@@ -35,9 +35,8 @@ Use `.env.worker` and `.env.scheduler` when those runtimes are enabled. The web 
 
 ## Commands
 
-- `bun run dev`, `bun run dev:api`, `bun run dev:web`
-- `bun run check-types`, `bun run lint`, `bun test`, `bun run build`
-- `bun run db:generate`, `bun run db:migrate:dev`
-- `bun run start:worker`, `bun run start:scheduler` when worker runtimes are present
+Use `task --list` to see the complete command surface. Common commands are `task dev`, `task test`, `task lint`, `task check-types`, `task build`, `task quality`, `task db:generate`, and `task db:migrate:dev`.
+
+Runtime-specific commands include `task dev:api`, `task dev:web`, `task dev:worker`, `task dev:scheduler`, `task test:queue`, `task build:worker`, and `task api:health`.
 
 See `.agent/` for the architecture and feature rules that future projects should follow.

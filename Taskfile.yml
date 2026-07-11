@@ -7,147 +7,233 @@ tasks:
       - rtk task --list
 
   install:
-    desc: Install workspace dependencies
+    desc: Install workspace dependencies without lifecycle scripts
     cmds:
-      - rtk bun install
+      - rtk bun install --ignore-scripts
 
   dev:
-    desc: Run API and web apps in development mode
+    desc: Run API, web, worker, and scheduler
     cmds:
       - rtk bun run dev
 
   dev:api:
-    desc: Run only the API app in development mode
+    desc: Run the API in development mode
     cmds:
       - rtk bun run dev:api
 
   dev:web:
-    desc: Run only the web app in development mode
+    desc: Run the web app in development mode
     cmds:
       - rtk bun run dev:web
 
   dev:worker:
-    desc: Run only the worker app in development mode
+    desc: Run the worker in development mode
     cmds:
       - rtk bun run dev:worker
 
   dev:scheduler:
-    desc: Run only the scheduler app in development mode
+    desc: Run the scheduler in development mode
     cmds:
       - rtk bun run dev:scheduler
 
   start:
-    desc: Start built API and web apps
+    desc: Start API, web, worker, and scheduler
     cmds:
       - rtk bun run start
 
   start:api:
-    desc: Start only the built API app
+    desc: Start the built API
     cmds:
       - rtk bun run start:api
 
   start:web:
-    desc: Start only the built web app
+    desc: Start the built web app
     cmds:
       - rtk bun run start:web
 
   start:worker:
-    desc: Start only the built worker app
+    desc: Start the built worker
     cmds:
       - rtk bun run start:worker
 
   start:scheduler:
-    desc: Start only the built scheduler app
+    desc: Start the built scheduler
     cmds:
       - rtk bun run start:scheduler
 
   build:
-    desc: Type-check and build the monorepo
+    desc: Type-check and build every runtime
     cmds:
       - rtk bun run build
 
   build:api:
-    desc: Build only the API app
+    desc: Build the API runtime
     cmds:
-      - rtk bun run docker:build:api
+      - rtk turbo run build --filter=@repo/api
 
   build:web:
-    desc: Build only the web app
+    desc: Build the web runtime
     cmds:
-      - rtk bun run docker:build:web
+      - rtk turbo run build --filter=web
+
+  build:worker:
+    desc: Build the worker runtime
+    cmds:
+      - rtk turbo run build --filter=@repo/worker
+
+  build:scheduler:
+    desc: Build the scheduler runtime
+    cmds:
+      - rtk turbo run build --filter=@repo/scheduler
 
   lint:
     desc: Lint all workspaces
     cmds:
       - rtk bun run lint
 
-  format:
-    desc: Format TypeScript, React, and Markdown files
+  lint:api:
+    desc: Lint the API package
     cmds:
-      - rtk bun run format
+      - rtk turbo run lint --filter=@repo/api
+
+  lint:web:
+    desc: Lint the web package
+    cmds:
+      - rtk turbo run lint --filter=web
+
+  lint:worker:
+    desc: Lint the worker package
+    cmds:
+      - rtk turbo run lint --filter=@repo/worker
+
+  lint:scheduler:
+    desc: Lint the scheduler package
+    cmds:
+      - rtk turbo run lint --filter=@repo/scheduler
 
   check-types:
     desc: Type-check all workspaces
     cmds:
       - rtk bun run check-types
 
-  quality:
-    desc: Run lint, type-check, and tests
+  check-types:api:
+    desc: Type-check the API package
     cmds:
+      - rtk turbo run check-types --filter=@repo/api
+
+  check-types:web:
+    desc: Type-check the web package
+    cmds:
+      - rtk turbo run check-types --filter=web
+
+  check-types:worker:
+    desc: Type-check the worker package
+    cmds:
+      - rtk turbo run check-types --filter=@repo/worker
+
+  check-types:scheduler:
+    desc: Type-check the scheduler package
+    cmds:
+      - rtk turbo run check-types --filter=@repo/scheduler
+
+  format:
+    desc: Format source and documentation
+    cmds:
+      - rtk bun run format
+
+  quality:
+    desc: Run tests, lint, and typecheck
+    cmds:
+      - rtk task test
       - rtk task lint
       - rtk task check-types
-      - rtk task test
 
   test:
-    desc: Run all Bun tests
+    desc: Run every Bun test
     cmds:
       - rtk bun test
 
   test:api:
-    desc: Run API tests
+    desc: Test the API package
     cmds:
       - rtk bun test apps/api
 
   test:web:
-    desc: Run web tests
+    desc: Test the web package
     cmds:
       - rtk bun test apps/web
 
+  test:worker:
+    desc: Test the worker package
+    cmds:
+      - rtk bun test apps/worker
+
+  test:scheduler:
+    desc: Test the scheduler package
+    cmds:
+      - rtk bun test apps/scheduler
+
+  test:config:
+    desc: Test typed runtime configuration
+    cmds:
+      - rtk bun test packages/config
+
+  test:queue:
+    desc: Test the PostgreSQL queue boundary
+    cmds:
+      - rtk bun test packages/queue
+
   test:database:
-    desc: Run database package tests
+    desc: Test the database package
     cmds:
       - rtk bun test packages/database
 
   clean:
-    desc: Clean generated build artifacts
+    desc: Clean all generated build artifacts
     cmds:
       - rtk bun run clean
 
   db:generate:
-    desc: Generate Prisma client
+    desc: Generate the Prisma client
     dir: packages/database
     cmds:
       - rtk bun run db:generate
 
   db:migrate:
-    desc: Apply Prisma migrations
+    desc: Apply committed Prisma migrations
     dir: packages/database
     cmds:
       - rtk bun run db:migrate
 
   db:migrate:dev:
-    desc: Create and apply Prisma migrations in development
+    desc: Create and apply a development migration
     dir: packages/database
     cmds:
       - rtk bun run db:migrate:dev
 
+  db:studio:
+    desc: Open Prisma Studio
+    dir: packages/database
+    cmds:
+      - rtk bunx prisma studio
+
+  api:health:
+    desc: Check the API health endpoint
+    cmds:
+      - rtk curl --fail http://localhost:4101/health
+
+  api:status:
+    desc: Check the API status endpoint
+    cmds:
+      - rtk curl --fail http://localhost:4101/api/status
+
   compose:up:
-    desc: Build and run the Docker Compose stack
+    desc: Build and run the complete Docker Compose stack
     cmds:
       - rtk docker compose up --build
 
   compose:up:detached:
-    desc: Build and run the Docker Compose stack in the background
+    desc: Build and run the stack in the background
     cmds:
       - rtk docker compose up --build -d
 
