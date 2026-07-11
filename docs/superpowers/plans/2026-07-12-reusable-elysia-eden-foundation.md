@@ -31,11 +31,24 @@ import { expect, test } from "bun:test";
 import { createApiConfig } from "./api";
 
 test("creates API config from scoped values", () => {
-  expect(createApiConfig({ NODE_ENV: "test", DATABASE_URL: "postgresql://db", PORT: "4101", CORS_ORIGIN: "http://localhost:4100" })).toMatchObject({ port: 4101, corsOrigin: "http://localhost:4100" });
+  expect(
+    createApiConfig({
+      NODE_ENV: "test",
+      DATABASE_URL: "postgresql://db",
+      PORT: "4101",
+      CORS_ORIGIN: "http://localhost:4100",
+    }),
+  ).toMatchObject({ port: 4101, corsOrigin: "http://localhost:4100" });
 });
 
 test("rejects an API config without DATABASE_URL", () => {
-  expect(() => createApiConfig({ NODE_ENV: "test", PORT: "4101", CORS_ORIGIN: "http://localhost:4100" })).toThrow();
+  expect(() =>
+    createApiConfig({
+      NODE_ENV: "test",
+      PORT: "4101",
+      CORS_ORIGIN: "http://localhost:4100",
+    }),
+  ).toThrow();
 });
 ```
 
@@ -121,14 +134,24 @@ Add to `app.test.ts`:
 
 ```ts
 test("serves the API status contract under /api", async () => {
-  const response = await app.handle(new Request("http://localhost:4101/api/status"));
+  const response = await app.handle(
+    new Request("http://localhost:4101/api/status"),
+  );
   expect(response.status).toBe(200);
-  expect(await response.json()).toEqual({ success: true, data: { status: "ok" } });
+  expect(await response.json()).toEqual({
+    success: true,
+    data: { status: "ok" },
+  });
 });
 
 test("uses the API failure envelope", async () => {
-  const response = await app.handle(new Request("http://localhost:4101/api/missing"));
-  expect(await response.json()).toMatchObject({ success: false, error: "NOT_FOUND" });
+  const response = await app.handle(
+    new Request("http://localhost:4101/api/missing"),
+  );
+  expect(await response.json()).toMatchObject({
+    success: false,
+    error: "NOT_FOUND",
+  });
 });
 ```
 
@@ -155,9 +178,9 @@ rtk git add apps/api packages/config package.json bun.lockb
 rtk git commit -m "feat(api): expose typed Elysia API boundary"
 ```
 
-### Task 4: Replace tRPC and auth web code with Eden routes
+### Task 4: Replace legacy web integration with embedded Elysia and Eden
 
-**Files:** Delete legacy web modules; create public/dashboard/API client/provider files; modify web package, config, layout and tests.
+**Files:** Delete legacy web modules; create the Next.js Elysia adapter, public/dashboard/API clients/provider files; modify web package, config, layout and tests.
 
 - [ ] **Step 1: Write failing Eden client test**
 
@@ -174,7 +197,7 @@ test("builds an Eden treaty client from the configured URL", () => {
 
 - [ ] **Step 2: Run test and verify it fails**
 
-Run: `rtk bun test apps/web/lib/api/client.test.ts`
+Run: `rtk bun test apps/web/lib/api/client.test.ts 'apps/web/app/api/[[...slugs]]/route.test.ts'`
 
 Expected: FAIL because the Eden client module does not exist.
 
@@ -182,17 +205,17 @@ Expected: FAIL because the Eden client module does not exist.
 
 Run: `rtk bun add --cwd apps/web @elysia/eden @t3-oss/env-nextjs`
 
-Add `@repo/api: "*"` as a development dependency and an `elysia` development dependency pinned to the same version as `@repo/api`. Add `transpilePackages: ["@t3-oss/env-nextjs", "@t3-oss/env-core"]` to Next config. Implement `lib/env.ts` with `createEnv`, requiring `NEXT_PUBLIC_API_URL` and allowing optional `API_INTERNAL_URL`. Implement `createApiClient(baseUrl)` as `treaty<App>(baseUrl)` and export browser/server clients that choose public or internal URL only through `env`.
+Add `@repo/api: "*"` as a runtime dependency and an `elysia` development dependency pinned to the same version as `@repo/api`. Add `transpilePackages: ["@t3-oss/env-nextjs", "@t3-oss/env-core", "@repo/api"]` to Next config. Create `app/api/[[...slugs]]/route.ts` that exports `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, and `OPTIONS` from `app.fetch`. Implement `lib/env.ts` with `createEnv`, requiring `NEXT_PUBLIC_APP_URL`. Implement the browser Eden client as `treaty<App>(env.NEXT_PUBLIC_APP_URL).api` and the Server Component client as `treaty(app).api`.
 
 Replace the tRPC provider with a `QueryClientProvider` only. Delete all tRPC, SSO/auth, callback, proxy, and auth-gated shell files. Move the landing page to `(public)/page.tsx`; create `(dashboard)/dashboard/page.tsx` with a minimal generic shell. Update layout metadata and remove product branding. No component may call `fetch` for API access or import `@repo/database`.
 
 - [ ] **Step 4: Verify web behavior and absence of legacy paths**
 
-Run: `rtk bun test apps/web/lib/api/client.test.ts apps/web/next.config.test.ts`
+Run: `rtk bun test apps/web/lib/api/client.test.ts 'apps/web/app/api/[[...slugs]]/route.test.ts' apps/web/next.config.test.ts`
 
 Expected: PASS.
 
-Run: `rtk rg -n "@trpc|nextapi|authServer|DATABASE_URL|Sleekflow|Oriskin" apps/web`
+Run: `rtk rg -n "@trpc|nextapi|NEXT_PUBLIC_API_URL|API_INTERNAL_URL|authServer|DATABASE_URL|Sleekflow|Oriskin" apps/web`
 
 Expected: no matches.
 
