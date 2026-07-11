@@ -1,0 +1,147 @@
+version: "3"
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - rtk task --list
+
+  install:
+    desc: Install workspace dependencies
+    cmds:
+      - rtk bun install
+
+  dev:
+    desc: Run API and web apps in development mode
+    cmds:
+      - rtk bun run dev
+
+  dev:api:
+    desc: Run only the API app in development mode
+    cmds:
+      - rtk bun run dev:api
+
+  dev:web:
+    desc: Run only the web app in development mode
+    cmds:
+      - rtk bun run dev:web
+
+  start:
+    desc: Start built API and web apps
+    cmds:
+      - rtk bun run start
+
+  start:api:
+    desc: Start only the built API app
+    cmds:
+      - rtk bun run start:api
+
+  start:web:
+    desc: Start only the built web app
+    cmds:
+      - rtk bun run start:web
+
+  build:
+    desc: Type-check and build the monorepo
+    cmds:
+      - rtk bun run build
+
+  build:api:
+    desc: Build only the API app
+    cmds:
+      - rtk bun run docker:build:api
+
+  build:web:
+    desc: Build only the web app
+    cmds:
+      - rtk bun run docker:build:web
+
+  lint:
+    desc: Lint all workspaces
+    cmds:
+      - rtk bun run lint
+
+  format:
+    desc: Format TypeScript, React, and Markdown files
+    cmds:
+      - rtk bun run format
+
+  check-types:
+    desc: Type-check all workspaces
+    cmds:
+      - rtk bun run check-types
+
+  quality:
+    desc: Run lint, type-check, and tests
+    cmds:
+      - rtk task lint
+      - rtk task check-types
+      - rtk task test
+
+  test:
+    desc: Run all Bun tests
+    cmds:
+      - rtk bun test
+
+  test:api:
+    desc: Run API tests
+    cmds:
+      - rtk bun test apps/api
+
+  test:web:
+    desc: Run web tests
+    cmds:
+      - rtk bun test apps/web
+
+  test:database:
+    desc: Run database package tests
+    cmds:
+      - rtk bun test packages/database
+
+  clean:
+    desc: Clean generated build artifacts
+    cmds:
+      - rtk bun run clean
+
+  db:generate:
+    desc: Generate Prisma client
+    dir: packages/database
+    cmds:
+      - rtk bun run db:generate
+
+  db:migrate:
+    desc: Apply Prisma migrations
+    dir: packages/database
+    cmds:
+      - rtk bun run db:migrate
+
+  db:migrate:dev:
+    desc: Create and apply Prisma migrations in development
+    dir: packages/database
+    cmds:
+      - rtk bun run db:migrate:dev
+
+  compose:up:
+    desc: Build and run the Docker Compose stack
+    cmds:
+      - rtk docker compose up --build
+
+  compose:up:detached:
+    desc: Build and run the Docker Compose stack in the background
+    cmds:
+      - rtk docker compose up --build -d
+
+  compose:down:
+    desc: Stop the Docker Compose stack
+    cmds:
+      - rtk docker compose down
+
+  compose:logs:
+    desc: Follow Docker Compose logs
+    cmds:
+      - rtk docker compose logs -f
+
+  compose:ps:
+    desc: Show Docker Compose service status
+    cmds:
+      - rtk docker compose ps

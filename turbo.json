@@ -1,0 +1,61 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"ui": "tui",
+	"globalEnv": [
+		"NODE_ENV",
+		"LOG_LEVEL",
+		"AUTH_URL",
+		"BACKEND_URL_MAP",
+		"NEXT_PUBLIC_APP_URL",
+		"NEXT_PUBLIC_AUTH_URL",
+		"NEXT_PUBLIC_SSO_CLIENT_ID",
+		"NEXT_PUBLIC_API_URL",
+		"MESSAGE_API_URL",
+		"MESSAGE_SEND_MEDIA_URL",
+		"MESSAGE_API_KEY",
+		"MESSAGE_DEFAULT_SENDER",
+		"SLEEKFLOW_API_URL",
+		"SLEEKFLOW_SEND_MEDIA_URL",
+		"SLEEKFLOW_API_KEY",
+		"SLEEKFLOW_DEFAULT_SENDER"
+	],
+	"tasks": {
+		"build": {
+			"dependsOn": [
+				"^build"
+			],
+			"outputs": [
+				".next/**",
+				"!.next/cache/**",
+				"dist/**"
+			],
+			"env": [
+				"NEXT_PUBLIC_API_URL"
+			]
+		},
+		"web#build": {
+			"env": [
+				"NEXT_PRIVATE_SKIP_PATCHING"
+			]
+		},
+		"lint": {
+			"dependsOn": [
+				"^lint"
+			],
+			"outputs": []
+		},
+		"check-types": {
+			"dependsOn": [
+				"^check-types"
+			],
+			"outputs": []
+		},
+		"dev": {
+			"cache": false,
+			"persistent": true
+		},
+		"clean": {
+			"cache": false
+		}
+	}
+}

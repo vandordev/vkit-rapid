@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MessageDirection {
+  inbound
+  outbound
+
+  @@map("message_direction")
+}
+
+model Contact {
+  id                String   @id @default(uuid()) @db.Uuid
+  primaryIdentifier String   @map("primary_identifier")
+  channel           String
+  phone             String?
+  externalContactId String?  @map("external_contact_id")
+  channelIdentityId String?  @map("channel_identity_id")
+  displayName       String?  @map("display_name")
+  rawProfile        Json?    @map("raw_profile")
+  firstSeenAt       DateTime @default(now()) @map("first_seen_at")
+  lastSeenAt        DateTime @default(now()) @map("last_seen_at")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  conversations Conversation[]
+  messages      Message[]
+
+  @@map("contacts")
+  @@unique([channel, primaryIdentifier], map: "contacts_channel_primary_identifier_key")
+  @@index([phone], map: "contacts_phone_idx")
+  @@index([channel], map: "contacts_channel_idx")
+  @@index([lastSeenAt], map: "contacts_last_seen_at_idx")
+}
+
+model Conversation {
+  id                      String   @id @default(uuid()) @db.Uuid
+  contactId               String   @db.Uuid @map("contact_id")
+  channel                 String
+  externalConversationId  String   @map("conversation_id")
+  lastMessageAt           DateTime? @map("last_message_at")
+  raw                     Json?    @map("raw")
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @updatedAt @map("updated_at")
+
+  contact  Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@map("conversations")
+  @@unique([channel, externalConversationId], map: "conversations_channel_conversation_id_key")
+  @@index([contactId], map: "conversations_contact_id_idx")
+  @@index([lastMessageAt], map: "conversations_last_message_at_idx")
+}
+
+model Message {
+  id                      String                   @id @default(uuid()) @db.Uuid
+  contactId               String                   @db.Uuid @map("contact_id")
+  conversationId          String?                  @db.Uuid @map("conversation_id")
+  direction               MessageDirection
+  channel                 String
+  messageType             String                  @map("message_type")
+  messageContent          String?                 @map("message_content")
+  externalMessageId      String?                 @map("message_id")
+  externalMessageUniqueId String?                 @map("message_unique_id")
+  status                  String?
+  fileName                String?                 @map("file_name")
+  fileUrl                 String?                 @map("file_url")
+  analyticTags            Json?                   @map("analytic_tags")
+  rawPayload              Json?                   @map("raw_payload")
+  rawResponse             Json?                   @map("raw_response")
+  createdAt               DateTime                @default(now()) @map("created_at")
+  updatedAt               DateTime                @updatedAt @map("updated_at")
+
+  contact      Contact       @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  conversation Conversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  apiCalls     ApiCall[]
+
+  @@map("messages")
+  @@index([contactId], map: "messages_contact_id_idx")
+  @@index([conversationId], map: "messages_conversation_id_idx")
+  @@index([direction], map: "messages_direction_idx")
+  @@index([channel], map: "messages_channel_idx")
+  @@index([createdAt], map: "messages_created_at_idx")
+  @@index([externalMessageId], map: "messages_message_id_idx")
+}
+
+model ApiCall {
+  id              String   @id @default(uuid()) @db.Uuid
+  messageId       String?  @db.Uuid @map("message_id")
+  operation       String
+  requestUrl      String   @map("request_url")
+  requestPayload  Json?    @map("request_payload")
+  responseStatus  Int?     @map("response_status")
+  responsePayload Json?    @map("response_payload")
+  error           String?
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  message Message? @relation(fields: [messageId], references: [id], onDelete: SetNull)
+
+  @@map("api_calls")
+  @@index([messageId], map: "api_calls_message_id_idx")
+  @@index([operation], map: "api_calls_operation_idx")
+  @@index([createdAt], map: "api_calls_created_at_idx")
+}
