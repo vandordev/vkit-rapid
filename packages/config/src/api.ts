@@ -9,6 +9,7 @@ const apiServer = {
   ...storageServer,
   PORT: z.coerce.number().int().positive().default(4101),
   CORS_ORIGIN: z.string().url().default("http://localhost:4100"),
+  OPENAPI_SERVER_URL: z.string().url().default("http://localhost:4101"),
   OPENAPI_BASIC_AUTH_USERNAME: z.string().min(1).optional(),
   OPENAPI_BASIC_AUTH_PASSWORD: z.string().min(1).optional(),
 } as const;
@@ -33,6 +34,7 @@ export function createApiConfig(
     ...parsed,
     port: parsed.PORT,
     corsOrigin: parsed.CORS_ORIGIN,
+    openapiServerUrl: parsed.OPENAPI_SERVER_URL,
     storage: createStorageConfig(parsed),
   };
 }

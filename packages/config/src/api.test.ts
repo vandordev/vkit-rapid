@@ -13,6 +13,12 @@ test("creates API config from scoped values", () => {
   ).toMatchObject({ port: 4101, corsOrigin: "http://localhost:4100" });
 });
 
+test("maps the public server URL for OpenAPI documentation", () => {
+  expect(
+    createApiConfig({ OPENAPI_SERVER_URL: "https://api.example.com" }).openapiServerUrl,
+  ).toBe("https://api.example.com");
+});
+
 test("maps optional S3 variables without exposing them to clients", () => {
   expect(
     createApiConfig({

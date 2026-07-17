@@ -103,6 +103,8 @@ The local services use these endpoints:
 
 The web runtime owns the public origin used by Eden. `DATABASE_URL` is server-only and is required by embedded Elysia when API routes access Prisma. It is never exposed to the browser.
 
+Set `OPENAPI_SERVER_URL` to the public API origin for the deployment. Scalar reads the generated same-origin specification, and this value is emitted as the OpenAPI document's server URL; use `http://localhost:4101` for a standalone API or `http://localhost:4100` for the embedded local API.
+
 ### Containerized development
 
 After creating the environment files, run the core web and embedded Elysia stack with:
