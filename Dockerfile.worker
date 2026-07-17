@@ -1,23 +1,25 @@
-# syntax=docker/dockerfile:1
+# syntax=docker/dockerfile:1.11
 FROM oven/bun:1.1.45-alpine AS base
 WORKDIR /app
-
-FROM base AS deps
-COPY package.json bun.lock turbo.json ./
-COPY apps/worker/package.json ./apps/worker/
-COPY packages/ ./packages/
+FROM base AS pruner
+COPY . .
+RUN bunx turbo@2.8.1 prune @repo/worker --docker
+FROM base AS build-deps
+COPY --from=pruner /app/out/json/ ./
 RUN bun install --frozen-lockfile --ignore-scripts
-
+FROM base AS prod-deps
+COPY --from=pruner /app/out/json/ ./
+RUN bun install --production --frozen-lockfile --ignore-scripts
 FROM base AS builder
-COPY --from=deps /app/node_modules ./node_modules
-COPY package.json bun.lock turbo.json ./
-COPY apps/worker/ ./apps/worker/
-COPY packages/ ./packages/
+COPY --from=build-deps /app/node_modules ./node_modules
+COPY --from=pruner /app/out/full/ ./
+RUN cd packages/database && bun run db:generate
 RUN cd apps/worker && bun run build
-
 FROM base AS runner
+WORKDIR /app
 ENV NODE_ENV=production
-COPY --from=builder /app/node_modules ./node_modules
+COPY --from=prod-deps /app/node_modules ./node_modules
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/apps/worker ./apps/worker
 COPY --from=builder /app/packages ./packages
 COPY --from=builder /app/package.json ./package.json
