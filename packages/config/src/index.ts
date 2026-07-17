@@ -6,3 +6,4 @@ export { createSchedulerConfig } from "./scheduler";
 export type { SchedulerConfig } from "./scheduler";
 export { createWorkerConfig } from "./worker";
 export type { WorkerConfig } from "./worker";
+export { createStorageConfig } from "./storage";
