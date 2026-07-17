@@ -2,9 +2,11 @@ import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
 
 import { assertProductionDatabaseConfig, commonServer } from "./common";
+import { createStorageConfig, storageServer } from "./storage";
 
 const apiServer = {
   ...commonServer,
+  ...storageServer,
   PORT: z.coerce.number().int().positive().default(4101),
   CORS_ORIGIN: z.string().url().default("http://localhost:4100"),
   OPENAPI_BASIC_AUTH_USERNAME: z.string().min(1).optional(),
@@ -31,6 +33,7 @@ export function createApiConfig(
     ...parsed,
     port: parsed.PORT,
     corsOrigin: parsed.CORS_ORIGIN,
+    storage: createStorageConfig(parsed),
   };
 }
 

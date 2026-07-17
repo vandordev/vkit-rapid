@@ -68,5 +68,18 @@ services:
       db:
         condition: service_healthy
 
+  realtime:
+    profiles: ["realtime"]
+    build:
+      context: .
+      dockerfile: Dockerfile.realtime
+    env_file:
+      - .env.realtime
+    environment:
+      NODE_ENV: production
+      REALTIME_PORT: 4102
+    ports:
+      - "4102:4102"
+
 volumes:
   postgres-data:

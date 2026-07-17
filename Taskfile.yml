@@ -46,6 +46,11 @@ tasks:
     cmds:
       - rtk bun run dev:scheduler
 
+  dev:realtime:
+    desc: Run the optional realtime runtime
+    cmds:
+      - rtk bun run dev:realtime
+
   start:
     desc: Start the web app with embedded Elysia
     cmds:
@@ -75,6 +80,11 @@ tasks:
     desc: Start the built scheduler
     cmds:
       - rtk bun run start:scheduler
+
+  start:realtime:
+    desc: Start the optional realtime runtime
+    cmds:
+      - rtk bun run start:realtime
 
   build:
     desc: Type-check and build every runtime
@@ -256,6 +266,11 @@ tasks:
     desc: Build and run the optional worker and scheduler profile
     cmds:
       - rtk docker compose --profile jobs up --build
+
+  compose:realtime:
+    desc: Build and run the optional realtime profile
+    cmds:
+      - rtk docker compose --profile realtime up --build
 
   compose:up:detached:
     desc: Build and run the stack in the background

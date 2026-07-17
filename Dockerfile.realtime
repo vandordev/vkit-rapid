@@ -1,0 +1,29 @@
+# syntax=docker/dockerfile:1.11
+FROM oven/bun:1.1.45-alpine AS base
+WORKDIR /app
+
+FROM base AS pruner
+COPY . .
+RUN bunx turbo@2.8.1 prune @repo/realtime-server --docker
+
+FROM base AS build-deps
+COPY --from=pruner /app/out/json/ ./
+RUN bun install --frozen-lockfile --ignore-scripts
+
+FROM base AS prod-deps
+COPY --from=pruner /app/out/json/ ./
+RUN bun install --production --frozen-lockfile --ignore-scripts
+
+FROM base AS builder
+COPY --from=build-deps /app/node_modules ./node_modules
+COPY --from=pruner /app/out/full/ ./
+RUN cd apps/realtime && bun run build
+
+FROM base AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=prod-deps /app/node_modules ./node_modules
+COPY --from=builder /app/apps/realtime ./apps/realtime
+COPY --from=builder /app/packages ./packages
+COPY --from=builder /app/package.json ./package.json
+CMD ["bun", "run", "apps/realtime/dist/main.js"]

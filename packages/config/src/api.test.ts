@@ -13,6 +13,18 @@ test("creates API config from scoped values", () => {
   ).toMatchObject({ port: 4101, corsOrigin: "http://localhost:4100" });
 });
 
+test("maps optional S3 variables without exposing them to clients", () => {
+  expect(
+    createApiConfig({
+      DATABASE_URL: "postgresql://db",
+      S3_BUCKET: "uploads",
+      S3_REGION: "ap-southeast-1",
+      S3_ACCESS_KEY_ID: "id",
+      S3_SECRET_ACCESS_KEY: "secret",
+    }).storage,
+  ).toMatchObject({ bucket: "uploads", rootPrefix: "uploads" });
+});
+
 test("uses the local PostgreSQL default when DATABASE_URL is omitted", () => {
   expect(
     createApiConfig({ NODE_ENV: "test", PORT: "4101", CORS_ORIGIN: "http://localhost:4100" }).DATABASE_URL,

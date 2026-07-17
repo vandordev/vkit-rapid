@@ -64,6 +64,7 @@ The queue boundary uses `pg-boss` on PostgreSQL, so durable jobs, retries, delay
 | `apps/web`             | Next.js App Router, `(public)` and `(dashboard)` route groups, Eden consumers                             |
 | `apps/api`             | Elysia app factory, standalone HTTP entrypoint, `/api` routes, health checks, validation, errors, logging |
 | `apps/scheduler`       | Optional time-based job scheduling and enqueueing                                                         |
+| `apps/realtime`        | Optional Socket.IO runtime with authenticated tickets and authorized rooms                                |
 | `apps/worker`          | Optional job consumption, retries, idempotency, and usecase execution                                     |
 | `packages/database`    | Prisma schema, migrations, generated client, singleton client                                             |
 | `packages/application` | Mutation usecases and domain rules                                                                        |
@@ -114,6 +115,16 @@ Use `task compose:up:detached`, `task compose:logs`, `task compose:ps`, and `tas
 
 Jobs are optional. Run `task compose:jobs` when the project uses scheduler and worker processes.
 
+### Optional object storage
+
+`@repo/storage` provides a server-only, S3-compatible client for private objects. Enable it only in the API or worker environment by setting all three required values: `S3_BUCKET`, `S3_ACCESS_KEY_ID`, and `S3_SECRET_ACCESS_KEY`. `S3_REGION` defaults to `us-east-1`; configure `S3_ENDPOINT` for MinIO-compatible endpoints and `S3_ROOT_PREFIX` (default `uploads`) to scope every object key. The client does not create public URLs or ACLs, and rejects keys outside that prefix.
+
+### Optional realtime runtime
+
+Run `task dev:realtime` after copying `.env.realtime.example` to `.env.realtime`, or use `task compose:realtime` to enable the isolated Compose profile. Set `REALTIME_TICKET_SECRET` and `REALTIME_PUBLISH_API_KEY`; the server listens on port `4102` by default and Socket.IO uses `/ws`.
+
+The realtime process is optional and single-instance by default. Publish only after the database transaction commits. Clients treat events and reconnects as signals to refetch Eden-backed read models. Multi-instance deployment requires an explicit Socket.IO adapter. The supplied bootstrap denies workspace joins until a product injects its authorization rule.
+
 ## Command Reference
 
 Taskfile is the supported interface for project operations. Run `task --list` for the complete list.
@@ -122,8 +133,10 @@ Taskfile is the supported interface for project operations. Run `task --list` fo
 task dev                  Run web with embedded Elysia
 task dev:standalone-api   Run the optional standalone API process
 task dev:jobs             Run optional worker and scheduler
+task dev:realtime         Run the optional realtime runtime
 task start                Start web with embedded Elysia
 task start:jobs           Start optional worker and scheduler
+task start:realtime       Start the optional realtime runtime
 task build                Type-check and build every installed workspace
 task quality              Run tests, lint, and typechecks
 task test                 Run every test

@@ -15,6 +15,7 @@ node_modules
 /.env.web
 /.env.worker
 /.env.scheduler
+/.env.realtime
 
 # Testing
 coverage
