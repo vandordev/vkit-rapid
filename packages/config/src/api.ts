@@ -7,6 +7,8 @@ const apiServer = {
   ...commonServer,
   PORT: z.coerce.number().int().positive().default(4101),
   CORS_ORIGIN: z.string().url().default("http://localhost:4100"),
+  OPENAPI_BASIC_AUTH_USERNAME: z.string().min(1).optional(),
+  OPENAPI_BASIC_AUTH_PASSWORD: z.string().min(1).optional(),
 } as const;
 
 export function createApiConfig(
@@ -20,6 +22,10 @@ export function createApiConfig(
   });
 
   assertProductionDatabaseConfig(parsed.NODE_ENV, runtimeEnv);
+
+  if (Boolean(parsed.OPENAPI_BASIC_AUTH_USERNAME) !== Boolean(parsed.OPENAPI_BASIC_AUTH_PASSWORD)) {
+    throw new Error("OPENAPI_BASIC_AUTH_USERNAME and OPENAPI_BASIC_AUTH_PASSWORD must be configured together");
+  }
 
   return {
     ...parsed,

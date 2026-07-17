@@ -18,3 +18,7 @@ test("uses the local PostgreSQL default when DATABASE_URL is omitted", () => {
     createApiConfig({ NODE_ENV: "test", PORT: "4101", CORS_ORIGIN: "http://localhost:4100" }).DATABASE_URL,
   ).toBe("postgresql://localhost:5432/postgres");
 });
+
+test("requires both documentation credentials when either is configured", () => {
+  expect(() => createApiConfig({ NODE_ENV: "test", OPENAPI_BASIC_AUTH_USERNAME: "docs" })).toThrow();
+});

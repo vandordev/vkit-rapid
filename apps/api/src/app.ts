@@ -2,8 +2,10 @@ import { cors } from "@elysiajs/cors";
 import { Elysia } from "elysia";
 
 import { env } from "./lib/env";
+import { isDocumentationAuthorized } from "./lib/docs-auth";
 import { AppError } from "./lib/errors";
 import { logger } from "./lib/logger";
+import { openapiPlugin } from "./openapi";
 import { healthRoutes, statusRoutes } from "./routes";
 
 const blockedPathPatterns: readonly RegExp[] = [
@@ -31,6 +33,14 @@ export const app = new Elysia()
         error: "NOT_FOUND",
         message: "Resource not found",
       };
+    }
+
+    if (pathname === "/api/docs" || pathname === "/api/openapi.json") {
+      if (!isDocumentationAuthorized(request.headers.get("authorization") ?? undefined, env.OPENAPI_BASIC_AUTH_USERNAME, env.OPENAPI_BASIC_AUTH_PASSWORD)) {
+        set.status = 401;
+        set.headers["www-authenticate"] = 'Basic realm="API documentation"';
+        return { success: false, error: "UNAUTHORIZED", message: "Documentation authentication required" };
+      }
     }
   })
   .derive(({ request, headers }) => {
@@ -70,6 +80,7 @@ export const app = new Elysia()
       allowedHeaders: ["Content-Type", "X-API-Key", "x-request-id"],
     }),
   )
+  .use(openapiPlugin)
   .onError(({ error, code, set, requestId }) => {
     if (error instanceof AppError) {
       set.status = error.status;
