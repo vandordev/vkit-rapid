@@ -32,6 +32,18 @@ export function resolvedConfigEnvironment(
   );
 }
 
+export function publicConfigEnvironment(
+  modules: readonly string[],
+  environment: Record<string, string | undefined> = process.env,
+  configDirectory?: string,
+): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(resolvedConfigEnvironment(modules, environment, configDirectory)).filter(([key]) =>
+      key.startsWith("NEXT_PUBLIC_"),
+    ),
+  );
+}
+
 export async function runConfiguredCommand({
   command,
   configDirectory,

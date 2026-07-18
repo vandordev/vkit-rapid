@@ -11,5 +11,5 @@ export type { WorkerConfig } from "./worker";
 export { createStorageConfig, storageServer } from "./storage";
 export { loadConfig } from "./loader";
 export type { LoadConfigOptions } from "./loader";
-export { resolvedConfigEnvironment, runConfiguredCommand } from "./run";
+export { publicConfigEnvironment, resolvedConfigEnvironment, runConfiguredCommand } from "./run";
 export type { ConfiguredCommandResult, RunConfiguredCommandOptions } from "./run";

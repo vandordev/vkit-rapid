@@ -4,9 +4,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun --env-file=../../.env.scheduler run --watch src/main.ts",
+    "dev": "bun --env-file=../../.env run ../../packages/config/src/run.ts --modules base,scheduler -- bun run --watch src/main.ts",
     "build": "bun build src/main.ts --outdir=dist --target=bun",
-    "start": "bun --env-file=../../.env.scheduler run dist/main.js",
+    "start": "bun --env-file=../../.env run ../../packages/config/src/run.ts --modules base,scheduler -- bun run dist/main.js",
     "lint": "eslint",
     "check-types": "tsc --noEmit",
     "clean": "rm -rf dist"

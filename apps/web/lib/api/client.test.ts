@@ -1,9 +1,13 @@
 import { expect, test } from "bun:test";
 
+import { resolvedConfigEnvironment } from "../../../../packages/config/src/run";
+
 test("builds an Eden treaty client from the configured URL", async () => {
-  process.env.DATABASE_URL = "postgresql://localhost:5432/test";
-  process.env.NEXT_PUBLIC_APP_URL = "http://localhost:4100";
+  Object.assign(
+    process.env,
+    resolvedConfigEnvironment(["base", "web", "api"], { DATABASE_URL: "postgresql://localhost:5432/test" }),
+  );
   const { createApiClient } = await import("./client");
 
-  expect(createApiClient("http://localhost:4101")).toBeDefined();
+  expect(createApiClient(process.env.NEXT_PUBLIC_APP_URL!)).toBeDefined();
 });

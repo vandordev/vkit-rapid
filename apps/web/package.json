@@ -5,9 +5,9 @@
   "packageManager": "bun@1.1.45",
   "private": true,
   "scripts": {
-    "dev": "bun --env-file=../../.env.web run next dev --port 4100 --turbopack",
-    "build": "NODE_ENV=production NEXT_PRIVATE_SKIP_PATCHING=1 bun --env-file=../../.env.web run next build",
-    "start": "bun --env-file=../../.env.web run next start --port 4100",
+    "dev": "bun --env-file=../../.env run ../../packages/config/src/run.ts --modules base,web,api,storage -- bun run next dev --port 4100 --turbopack",
+    "build": "NODE_ENV=production NEXT_PRIVATE_SKIP_PATCHING=1 bun --env-file=../../.env run ../../packages/config/src/run.ts --modules base,web,api,storage -- bun run next build",
+    "start": "bun --env-file=../../.env run ../../packages/config/src/run.ts --modules base,web,api,storage -- bun run next start --port 4100",
     "lint": "eslint",
     "check-types": "next typegen && tsc --noEmit",
     "clean": "rm -rf .next"
