@@ -9,3 +9,5 @@ export type { RealtimeConfig } from "./realtime";
 export { createWorkerConfig } from "./worker";
 export type { WorkerConfig } from "./worker";
 export { createStorageConfig, storageServer } from "./storage";
+export { loadConfig } from "./loader";
+export type { LoadConfigOptions } from "./loader";
