@@ -11,11 +11,6 @@ node_modules
 .env.development.local
 .env.test.local
 .env.production.local
-/.env.api
-/.env.web
-/.env.worker
-/.env.scheduler
-/.env.realtime
 
 # Testing
 coverage
