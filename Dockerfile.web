@@ -9,20 +9,21 @@ FROM base AS deps
 COPY --from=prepare /app/out/json/ ./
 RUN --mount=type=cache,id=bun-web-install,target=/root/.bun/install/cache \
     bun install --frozen-lockfile --ignore-scripts
-FROM node:22-alpine AS builder
+FROM oven/bun:1.1.45-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=prepare /app/out/full/ ./
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-ARG NEXT_PUBLIC_APP_URL=http://localhost:4100
-ARG DATABASE_URL=postgresql://boilerplate:boilerplate@localhost:5432/boilerplate
+ARG NEXT_PUBLIC_APP_URL
+ARG DATABASE_URL
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 ENV DATABASE_URL=$DATABASE_URL
 RUN cd packages/database && ../../node_modules/.bin/prisma generate
+COPY config /app/config
 RUN --mount=type=cache,id=next-web-build,target=/app/apps/web/.next/cache \
-    cd apps/web && NEXT_PRIVATE_SKIP_PATCHING=1 node ../../node_modules/next/dist/bin/next build
-FROM node:22-alpine AS runner
+    cd apps/web && NEXT_PRIVATE_SKIP_PATCHING=1 bun run ../../packages/config/src/run.ts --modules base,web,api,storage -- bun run next build
+FROM oven/bun:1.1.45-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=4100
@@ -31,6 +32,8 @@ RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
+COPY --from=builder --chown=nextjs:nodejs /app/packages/config ./packages/config
+COPY --from=builder --chown=nextjs:nodejs /app/config /app/config
 USER nextjs
 EXPOSE 4100
-CMD ["node", "apps/web/server.js"]
+CMD ["bun", "run", "packages/config/src/run.ts", "--modules", "base,web,api,storage", "--", "bun", "run", "apps/web/server.js"]

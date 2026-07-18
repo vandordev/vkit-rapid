@@ -20,5 +20,6 @@ ENV NODE_ENV=production
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=builder /app/apps/scheduler ./apps/scheduler
 COPY --from=builder /app/packages ./packages
+COPY --from=builder /app/config /app/config
 COPY --from=builder /app/package.json ./package.json
-CMD ["bun", "run", "apps/scheduler/dist/main.js"]
+CMD ["bun", "run", "packages/config/src/run.ts", "--modules", "base,scheduler", "--", "bun", "run", "apps/scheduler/dist/main.js"]

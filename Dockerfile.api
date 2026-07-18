@@ -23,6 +23,7 @@ COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/packages ./packages
 COPY --from=builder /app/apps/api ./apps/api
+COPY --from=builder /app/config /app/config
 COPY --from=builder /app/package.json ./package.json
 EXPOSE 4101
-CMD ["bun", "run", "--bun", "apps/api/src/server.ts"]
+CMD ["bun", "run", "packages/config/src/run.ts", "--modules", "base,api,storage", "--", "bun", "run", "apps/api/dist/server.js"]

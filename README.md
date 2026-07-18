@@ -88,12 +88,20 @@ git clone <repository-url>
 cd vkit-rapid
 
 task install
-cp .env.web.example .env.web
+cp .env.example .env
 
 task dev
 ```
 
-Copy `.env.api.example` only when running the standalone API. Copy `.env.worker.example` and `.env.scheduler.example` only when enabling jobs.
+The root `.env` is ignored and holds local secrets or local overrides. Production deployments inject those values through their platform environment or secret manager rather than committing an environment file.
+
+### YAML-first configuration
+
+Committed files in `config/` are composable configuration modules. Each runtime chooses its own module list and left-to-right merge order: the web runtime selects `base,web,api,storage`, standalone API selects `base,api,storage`, worker selects `base,worker,storage`, scheduler selects `base,scheduler`, and realtime selects `base,realtime`.
+
+Objects deep-merge; a later array, scalar, or `null` replaces the preceding value. YAML interpolation supports only `${NAME}` and `${NAME:-fallback}` and resolves once against the root `.env` or the deployment environment. `${NAME}` fails when the value is absent or empty; `${NAME:-fallback}` uses its fallback in that case. Use `${OPTIONAL_VALUE:-}` for an optional empty value.
+
+Never write a literal secret in YAML. `DATABASE_URL`, credentials, tokens, and private keys must be interpolation references. The wrapper resolves selected modules before each server starts, then the existing Zod configuration factories validate the result. A server can select any module it needs, but browser code only receives `NEXT_PUBLIC_*` values; server-only values such as `DATABASE_URL` remain unavailable to client components.
 
 The local services use these endpoints:
 
@@ -107,7 +115,7 @@ Set `OPENAPI_SERVER_URL` to the public API origin for the deployment. Scalar rea
 
 ### Containerized development
 
-After creating the environment files, run the core web and embedded Elysia stack with:
+After creating `.env`, run the core web and embedded Elysia stack with:
 
 ```bash
 task compose:up
@@ -123,7 +131,7 @@ Jobs are optional. Run `task compose:jobs` when the project uses scheduler and w
 
 ### Optional realtime runtime
 
-Run `task dev:realtime` after copying `.env.realtime.example` to `.env.realtime`, or use `task compose:realtime` to enable the isolated Compose profile. Set `REALTIME_TICKET_SECRET` and `REALTIME_PUBLISH_API_KEY`; the server listens on port `4102` by default and Socket.IO uses `/ws`.
+Run `task dev:realtime` after setting `REALTIME_TICKET_SECRET` and `REALTIME_PUBLISH_API_KEY` in the root `.env`, or use `task compose:realtime` to enable the isolated Compose profile. The server listens on port `4102` by default and Socket.IO uses `/ws`.
 
 The realtime process is optional and single-instance by default. Publish only after the database transaction commits. Clients treat events and reconnects as signals to refetch Eden-backed read models. Multi-instance deployment requires an explicit Socket.IO adapter. The supplied bootstrap denies workspace joins until a product injects its authorization rule.
 

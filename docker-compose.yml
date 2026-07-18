@@ -17,8 +17,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.web
+      args:
+        DATABASE_URL: ${DATABASE_URL}
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:4100}
     env_file:
-      - .env.web
+      - .env
     environment:
       NODE_ENV: production
       PORT: 4100
@@ -46,7 +49,7 @@ services:
       context: .
       dockerfile: Dockerfile.worker
     env_file:
-      - .env.worker
+      - .env
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://boilerplate:boilerplate@db:5432/boilerplate
@@ -60,7 +63,7 @@ services:
       context: .
       dockerfile: Dockerfile.scheduler
     env_file:
-      - .env.scheduler
+      - .env
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://boilerplate:boilerplate@db:5432/boilerplate
@@ -74,10 +77,11 @@ services:
       context: .
       dockerfile: Dockerfile.realtime
     env_file:
-      - .env.realtime
+      - .env
     environment:
       NODE_ENV: production
       REALTIME_PORT: 4102
+      DATABASE_URL: postgresql://boilerplate:boilerplate@db:5432/boilerplate
     ports:
       - "4102:4102"
 

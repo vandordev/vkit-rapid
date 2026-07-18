@@ -25,5 +25,6 @@ ENV NODE_ENV=production
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=builder /app/apps/realtime ./apps/realtime
 COPY --from=builder /app/packages ./packages
+COPY --from=builder /app/config /app/config
 COPY --from=builder /app/package.json ./package.json
-CMD ["bun", "run", "apps/realtime/dist/main.js"]
+CMD ["bun", "run", "packages/config/src/run.ts", "--modules", "base,realtime", "--", "bun", "run", "apps/realtime/dist/main.js"]
