@@ -1,13 +1,30 @@
 import { expect, test } from "bun:test";
 
 import { createCommonConfig } from "./common";
+import { loadConfig } from "./loader";
+
+const configDirectory = new URL("../../../config", import.meta.url).pathname;
 
 test("requires an explicit database URL in production", () => {
-  expect(() => createCommonConfig({ NODE_ENV: "production" })).toThrow();
+  expect(() =>
+    createCommonConfig(
+      loadConfig({
+        configDirectory,
+        modules: ["base"],
+        environment: { NODE_ENV: "production" },
+      }) as Record<string, string | undefined>,
+    ),
+  ).toThrow('Missing configuration environment variable "DATABASE_URL"');
 });
 
-test("allows the local database default outside production", () => {
-  expect(createCommonConfig({ NODE_ENV: "development" }).DATABASE_URL).toBe(
-    "postgresql://localhost:5432/postgres",
-  );
+test("creates common config from resolved YAML values", () => {
+  expect(
+    createCommonConfig(
+      loadConfig({
+        configDirectory,
+        modules: ["base"],
+        environment: { NODE_ENV: "development", DATABASE_URL: "postgresql://db" },
+      }) as Record<string, string | undefined>,
+    ).DATABASE_URL,
+  ).toBe("postgresql://db");
 });
